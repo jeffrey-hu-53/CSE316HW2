@@ -157,7 +157,9 @@ class App extends React.Component {
                     loadListCallback={this.loadList}
                     renameListCallback={this.renameList}
                 />
+                
                 <Workspace
+                    // dummy='dummy'
                     currentList={this.state.currentList} />
                 <Statusbar 
                     currentList={this.state.currentList} />
