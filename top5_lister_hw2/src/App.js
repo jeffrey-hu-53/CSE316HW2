@@ -165,7 +165,25 @@ class App extends React.Component {
         });
     }
 
-    
+    swapItems = (DraggedIndex, DroppedOnIndex) => {
+        let currentList = this.state.currentList;
+        currentList.items.splice(
+            DroppedOnIndex, 0, currentList.items.splice(DraggedIndex, 1)[0]);
+
+        this.setState(prevState => ({
+            currentList: this.state.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: prevState.sessionData.keyNamePairs
+            }
+        }), () => {
+            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
+            // THE TRANSACTION STACK IS CLEARED
+            this.db.mutationUpdateList(this.state.currentList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+    }
 
     render() {
         return (
@@ -189,7 +207,8 @@ class App extends React.Component {
                     renameItemCallback={this.renameItem}
                     onDragStartCallback={this.onDragStart}
                     onDragOverCallback={this.onDragOver}
-                    onDragDropCallback={this.onDrop}/>
+                    onDragDropCallback={this.onDrop}
+                    swapItemsCallback={this.swapItems}/>
                     
                 <Statusbar 
                     currentList={this.state.currentList} />

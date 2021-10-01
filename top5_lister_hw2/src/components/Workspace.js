@@ -23,10 +23,11 @@ export default class Workspace extends React.Component {
                     currentList !== null ?   
                         this.props.currentList.items.map((itemName, index) => (
                             <ItemCard
-                                renameItemCallback = {this.props.renameItemCallback}
+                                renameItemCallback ={this.props.renameItemCallback}
                                 onDragStartCallback={this.props.onDragStartCallBack}
                                 onDragOverCallback={this.props.onDragOverCallback}
                                 onDragDropCallback={this.props.onDropCallback}
+                                swapItemsCallback={this.props.swapItemsCallback}
                                 itemName = {itemName}
                                 // key = {this.props.currentList.items.indexOf(itemName)}
                                 key = {"item-" + index}

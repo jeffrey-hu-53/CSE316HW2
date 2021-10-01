@@ -25,15 +25,18 @@ export default class ItemCard extends React.Component {
     // }
 
     onDragStart = (event) => {
-        event.dataTransfer.setData("text", event.target.id);
+        event.dataTransfer.setData("index", this.state.index);
+        console.log("Picked up index " + this.state.index);
     }
     onDragOver = (event) => {
         event.preventDefault();
     }
     onDrop = (event) => {
         event.preventDefault();
-        var data = event.dataTransfer.getData("text");
-        event.target.appendChild(document.getElementById(data));
+        let draggedIndex = event.dataTransfer.getData("index");
+        let droppedOnIndex = this.state.index;
+        console.log("Dropped on index " + this.state.index);
+        this.props.swapItemsCallback(draggedIndex, droppedOnIndex);
     }
     
     handleClick = (event) => {
