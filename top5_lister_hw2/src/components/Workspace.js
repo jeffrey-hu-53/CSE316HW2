@@ -5,6 +5,7 @@ export default class Workspace extends React.Component {
         // console.log("workspace curr list: ", this.props.currentList);
         // console.log("props: " + this.props);
         let currentList = this.props.currentList;
+        console.log(currentList);
         let items = currentList === null ? [] : currentList.items;
         console.log(items);
         return (
@@ -20,10 +21,16 @@ export default class Workspace extends React.Component {
                     <div id = "edit-items">
                     {
                     currentList !== null ?   
-                        this.props.currentList.items.map((itemName) => (
+                        this.props.currentList.items.map((itemName, index) => (
                             <ItemCard
+                                renameItemCallback = {this.props.renameItemCallback}
+                                onDragStartCallback={this.props.onDragStartCallBack}
+                                onDragOverCallback={this.props.onDragOverCallback}
+                                onDragDropCallback={this.props.onDropCallback}
                                 itemName = {itemName}
-                                key = {this.props.currentList.items.indexOf(itemName)}
+                                // key = {this.props.currentList.items.indexOf(itemName)}
+                                key = {"item-" + index}
+                                index = {index}
                             /> 
                         ))
 

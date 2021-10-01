@@ -142,6 +142,31 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+    renameItem = (index, newName) => {
+        let items = this.state.currentList.items
+        for (let i = 0; i < items.length; i++){
+            if (i === index){
+                items[i] = newName;
+            }
+        }
+
+        this.setState(prevState => ({
+            currentList: this.state.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: prevState.sessionData.keyNamePairs
+            }
+        }), () => {
+            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
+            // THE TRANSACTION STACK IS CLEARED
+            this.db.mutationUpdateList(this.state.currentList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+    }
+
+    
+
     render() {
         return (
             <div id="app-root">
@@ -160,7 +185,12 @@ class App extends React.Component {
                 
                 <Workspace
                     // dummy='dummy'
-                    currentList={this.state.currentList} />
+                    currentList={this.state.currentList} 
+                    renameItemCallback={this.renameItem}
+                    onDragStartCallback={this.onDragStart}
+                    onDragOverCallback={this.onDragOver}
+                    onDragDropCallback={this.onDrop}/>
+                    
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal

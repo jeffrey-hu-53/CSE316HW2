@@ -6,12 +6,43 @@ export default class ItemCard extends React.Component {
 
         this.state = {
             text: this.props.itemName,
+            key: this.props.key,
+            index: this.props.index,
             editActive: false,
         }
     }
+
+    // handleDragStart = (event) =>{
+        
+    // }
+
+    // handleDragOver = (event) =>{
+    //     this.props.onDragOverCallback(event);
+    // }
+
+    // handleOnDrop = (event) =>{
+    //     this.props.onDropCallback(event);
+    // }
+
+    onDragStart = (event) => {
+        event.dataTransfer.setData("text", event.target.id);
+    }
+    onDragOver = (event) => {
+        event.preventDefault();
+    }
+    onDrop = (event) => {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        event.target.appendChild(document.getElementById(data));
+    }
+    
     handleClick = (event) => {
-        if (event.detail === 2) {
+        if (event.detail === 1) {
+            console.log("itemcard single click")
+        }
+        else if (event.detail === 2) {
             this.handleToggleEdit(event);
+            console.log("itemcard double click")
         }
     }
     handleToggleEdit = (event) => {
@@ -19,7 +50,7 @@ export default class ItemCard extends React.Component {
             editActive: !this.state.editActive
         });
     }
-    /*
+    
     handleUpdate = (event) => {
         this.setState({ text: event.target.value });
     }
@@ -29,65 +60,41 @@ export default class ItemCard extends React.Component {
         }
     }
     handleBlur = () => {
-        let key = this.props.keyNamePair.key;
+        let index = this.props.index;
         let textValue = this.state.text;
         console.log("ListCard handleBlur: " + textValue);
-        this.props.renameListCallback(key, textValue);
+        this.props.renameItemCallback(index, textValue);
         this.handleToggleEdit();
     }
-    */
 
     render() {
-        return (
-            <div className = "top5-item"> 
-                {
-                    this.props.itemName
-                }
-            </div>
-        )
-        /*
-        const { keyNamePair, selected } = this.props;
         
-
+        // const { keyNamePair, selected } = this.props;
         if (this.state.editActive) {
             return (
                 <input
-                    id={"list-" + keyNamePair.name}
-                    className='list-card'
+                    // id={"list-" + keyNamePair.name}
+                    className='top5-item'
                     type='text'
                     onKeyPress={this.handleKeyPress}
                     onBlur={this.handleBlur}
                     onChange={this.handleUpdate}
-                    defaultValue={keyNamePair.name}
+                    autoFocus
+                    // defaultValue={keyNamePair.name}
                 />)
         }
         else {
-
-            let selectClass = "unselected-list-card";
-            if (selected) {
-                selectClass = "selected-list-card";
-            }
             return (
-                <div
-                    id={keyNamePair.key}
-                    key={keyNamePair.key}
-                    onClick={this.handleClick}
-                    className={'list-card ' + selectClass}>
-                    <span
-                        id={"list-card-text-" + keyNamePair.key}
-                        key={keyNamePair.key}
-                        className="list-card-text">
-                        {keyNamePair.name}
-                    </span>
-                    <input
-                        type="button"
-                        id={"delete-list-" + keyNamePair.key}
-                        className="list-card-button"
-                        onClick={this.handleDeleteList}
-                        value={"\u2715"} />
+                <div className = "top5-item" onClick={this.handleClick} 
+                onDragStart={this.onDragStart} 
+                onDragOver={this.onDragOver} 
+                onDrop={this.onDrop}
+                draggable="true"> 
+                    {
+                        this.props.itemName
+                    }
                 </div>
-            );
+            )
         }
-        */
     }
 }
