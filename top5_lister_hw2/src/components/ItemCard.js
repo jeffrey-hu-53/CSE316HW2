@@ -5,10 +5,11 @@ export default class ItemCard extends React.Component {
         super(props);
 
         this.state = {
+            class: "top5-item",
             text: this.props.itemName,
             key: this.props.key,
             index: this.props.index,
-            editActive: false,
+            editActive: false
         }
     }
 
@@ -30,13 +31,43 @@ export default class ItemCard extends React.Component {
     }
     onDragOver = (event) => {
         event.preventDefault();
+        console.log("You are dragged over " + this.state.index);
+        this.setState({
+            class: "top5-item-dragged-to",
+            text: this.props.itemName,
+            key: this.props.key,
+            index: this.props.index,
+            editActive: false
+        })
+    }
+    onDragLeave = (event) => {
+        event.preventDefault();
+        this.setState({
+            class: "top5-item",
+            text: this.props.itemName,
+            key: this.props.key,
+            index: this.props.index,
+            editActive: false
+        })
     }
     onDrop = (event) => {
         event.preventDefault();
         let draggedIndex = event.dataTransfer.getData("index");
         let droppedOnIndex = this.state.index;
-        console.log("Dropped on index " + this.state.index);
-        this.props.swapItemsCallback(draggedIndex, droppedOnIndex);
+        console.log("Dropped on index "+ this.state.index);
+        if (draggedIndex != droppedOnIndex){
+            this.props.swapItemsCallback(draggedIndex, droppedOnIndex);
+        } else {
+            console.log("Dropped on self so nothing happened");
+        }
+
+        this.setState({
+            class: "top5-item",
+            text: this.props.itemName,
+            key: this.props.key,
+            index: this.props.index,
+            editActive: false
+        })
     }
     
     handleClick = (event) => {
@@ -88,10 +119,11 @@ export default class ItemCard extends React.Component {
         }
         else {
             return (
-                <div className = "top5-item" onClick={this.handleClick} 
+                <div className = {this.state.class} onClick={this.handleClick} 
                 onDragStart={this.onDragStart} 
                 onDragOver={this.onDragOver} 
                 onDrop={this.onDrop}
+                onDragLeave={this.onDragLeave}
                 draggable="true"> 
                     {
                         this.props.itemName

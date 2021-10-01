@@ -10,6 +10,7 @@ import Banner from './components/Banner.js'
 import Sidebar from './components/Sidebar.js'
 import Workspace from './components/Workspace.js';
 import Statusbar from './components/Statusbar.js'
+import EditToolbar from './components/EditToolbar';
 
 class App extends React.Component {
     constructor(props) {
@@ -142,6 +143,12 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+
+    removeList = () => {
+        console.log(this.state.currentList.name + " would've been removed!");
+        this.hideDeleteListModal();
+    }
+
     renameItem = (index, newName) => {
         let items = this.state.currentList.items
         for (let i = 0; i < items.length; i++){
@@ -169,7 +176,7 @@ class App extends React.Component {
         let currentList = this.state.currentList;
         currentList.items.splice(
             DroppedOnIndex, 0, currentList.items.splice(DraggedIndex, 1)[0]);
-
+        
         this.setState(prevState => ({
             currentList: this.state.currentList,
             sessionData: {
@@ -183,6 +190,14 @@ class App extends React.Component {
             this.db.mutationUpdateList(this.state.currentList);
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
+    }
+
+    undoTransaction = () => {
+        
+    }
+
+    redoTransaction = () => {
+        
     }
 
     render() {
@@ -200,20 +215,20 @@ class App extends React.Component {
                     loadListCallback={this.loadList}
                     renameListCallback={this.renameList}
                 />
-                
                 <Workspace
-                    // dummy='dummy'
                     currentList={this.state.currentList} 
                     renameItemCallback={this.renameItem}
                     onDragStartCallback={this.onDragStart}
                     onDragOverCallback={this.onDragOver}
                     onDragDropCallback={this.onDrop}
                     swapItemsCallback={this.swapItems}/>
-                    
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
+                    listKeyPair={this.state.currentList}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
+                    removeListCallback={this.removeList}
+                    // listToBeRemovedName={this.state.currentList.name}
                 />
             </div>
         );
