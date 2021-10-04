@@ -163,14 +163,31 @@ class App extends React.Component {
     }
 
     removeList = () => {
-        console.log(this.state.currentDelete.name + " would've been removed!");
         for (let i = 0; i < this.state.sessionData.keyNamePairs.length; i++){
             console.log(this.state.sessionData.keyNamePairs[i])
             if (this.state.currentDelete === this.state.sessionData.keyNamePairs[i]){
                 console.log("delete " + this.state.sessionData.keyNamePairs[i].name)
+                this.state.sessionData.keyNamePairs.splice(i, 1)
                 break
             }
         }
+
+        this.setState(prevState => ({
+            currentDelete: null,
+            currentList: this.state.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: this.state.sessionData.keyNamePairs
+                
+            }
+        }), () => {
+            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
+            // THE TRANSACTION STACK IS CLEARED
+            this.db.mutationUpdateList(this.state.currentList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+
         this.hideDeleteListModal();
     }
 
