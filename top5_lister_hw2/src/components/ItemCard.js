@@ -9,7 +9,7 @@ export default class ItemCard extends React.Component {
             text: this.props.itemName,
             key: this.props.key,
             index: this.props.index,
-            editActive: false
+            editActive: false,
         }
     }
 
@@ -87,6 +87,7 @@ export default class ItemCard extends React.Component {
     
     handleUpdate = (event) => {
         this.setState({ text: event.target.value });
+        console.log(event.target.value)
     }
     handleKeyPress = (event) => {
         if (event.code === "Enter") {
@@ -94,9 +95,15 @@ export default class ItemCard extends React.Component {
         }
     }
     handleBlur = () => {
-        let index = this.props.index;
-        let textValue = this.state.text;
-        this.props.renameItemCallback(index, textValue);
+        if (this.state.text != this.props.itemName){
+            console.log("entered")
+            let index = this.props.index;
+            let textValue = this.state.text;
+            console.log(index)
+            console.log(textValue)
+            console.log(this.state.value)
+            this.props.createChangeTrxnCallback(index, textValue);
+        } 
         this.handleToggleEdit();
     }
 
@@ -113,7 +120,7 @@ export default class ItemCard extends React.Component {
                     onBlur={this.handleBlur}
                     onChange={this.handleUpdate}
                     autoFocus
-                    // defaultValue={keyNamePair.name}
+                    defaultValue={this.props.value}
                 />)
         }
         else {

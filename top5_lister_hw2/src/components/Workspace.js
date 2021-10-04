@@ -21,6 +21,7 @@ export default class Workspace extends React.Component {
                     currentList !== null ?   
                         this.props.currentList.items.map((itemName, index) => (
                             <ItemCard
+                                createChangeTrxnCallback ={this.props.createChangeTrxnCallback}
                                 renameItemCallback ={this.props.renameItemCallback}
                                 onDragStartCallback={this.props.onDragStartCallBack}
                                 onDragOverCallback={this.props.onDragOverCallback}
@@ -30,6 +31,7 @@ export default class Workspace extends React.Component {
                                 // key = {this.props.currentList.items.indexOf(itemName)}
                                 key = {"item-" + index}
                                 index = {index}
+                                value = {itemName}
                             /> 
                         ))
 

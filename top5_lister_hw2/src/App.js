@@ -11,10 +11,18 @@ import Sidebar from './components/Sidebar.js'
 import Workspace from './components/Workspace.js';
 import Statusbar from './components/Statusbar.js'
 import EditToolbar from './components/EditToolbar';
+import { traverseTwoPhase } from 'react-dom/test-utils';
+import jsTPS from './components/jsTPS.js';
+import ChangeItem_Transaction from './components/ChangeItem_Transaction';
+import MoveItem_Transaction from './components/MoveItem_Transaction';
+
 
 class App extends React.Component {
     constructor(props) {
         super(props);
+
+        // added tps stack
+        this.tps = new jsTPS();
 
         // THIS WILL TALK TO LOCAL STORAGE
         this.db = new DBManager();
@@ -114,7 +122,12 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            this.tps.clearAllTransactions();
+            console.log(this.state.currentList)
+            console.log("After loading new list, tps size is: "+ this.tps.getSize())
         });
+        
+        
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
     closeCurrentList = () => {
@@ -125,6 +138,8 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            this.tps.clearAllTransactions();
+            console.log("After closing the list, tps size is: "+ this.tps.getSize())
         });
     }
     deleteList = (listToDelete) => {
@@ -141,7 +156,6 @@ class App extends React.Component {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
                 keyNamePairs: prevState.sessionData.keyNamePairs
-                
             }
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
@@ -192,13 +206,26 @@ class App extends React.Component {
         this.hideDeleteListModal();
     }
 
+    createChangeItemTrxn = (index, newName) => {
+        let oldName = this.state.currentList.items[index]
+        let trxn = new ChangeItem_Transaction(this, index, oldName, newName)
+        this.tps.addTransaction(trxn)
+    }
+
     renameItem = (index, newName) => {
         let items = this.state.currentList.items
+        console.log(items)
+        let oldName = ""
         for (let i = 0; i < items.length; i++){
             if (i === index){
+                oldName = items[i];
                 items[i] = newName;
+                console.log("After changing the name of an item, tps size is: " + this.tps.getSize())
+                break
             }
         }
+
+        console.log(items)
 
         this.setState(prevState => ({
             currentList: this.state.currentList,
@@ -208,11 +235,14 @@ class App extends React.Component {
                 keyNamePairs: prevState.sessionData.keyNamePairs
             }
         }), () => {
-            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
-            // THE TRANSACTION STACK IS CLEARED
             this.db.mutationUpdateList(this.state.currentList);
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
+    }
+
+    swapItemTrxn = (Dragged, Dropped) => {
+        let trxn = new MoveItem_Transaction(this, Dragged, Dropped)
+        this.tps.addTransaction(trxn)
     }
 
     swapItems = (DraggedIndex, DroppedOnIndex) => {
@@ -228,19 +258,27 @@ class App extends React.Component {
                 keyNamePairs: prevState.sessionData.keyNamePairs
             }
         }), () => {
-            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
-            // THE TRANSACTION STACK IS CLEARED
             this.db.mutationUpdateList(this.state.currentList);
             this.db.mutationUpdateSessionData(this.state.sessionData);
+            console.log("After swapping items, tps size is: " + this.tps.getSize())
         });
     }
 
     undoTransaction = () => {
+        if (this.tps.hasTransactionToUndo()){
+            this.tps.undoTransaction();
+        } else {
+            console.log("NOTHING TO UNDO");
+        }
         
     }
 
     redoTransaction = () => {
-        
+        if (this.tps.hasTransactionToRedo()){
+            this.tps.doTransaction();
+        } else {
+            console.log("NOTHING TO REDO");
+        }
     }
 
     render() {
@@ -248,7 +286,9 @@ class App extends React.Component {
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
-                    closeCallback={this.closeCurrentList} />
+                    closeCallback={this.closeCurrentList}
+                    undoCallback={this.undoTransaction}
+                    redoCallback={this.redoTransaction} />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
@@ -260,11 +300,12 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList} 
+                    createChangeTrxnCallback={this.createChangeItemTrxn}
                     renameItemCallback={this.renameItem}
                     onDragStartCallback={this.onDragStart}
                     onDragOverCallback={this.onDragOver}
                     onDragDropCallback={this.onDrop}
-                    swapItemsCallback={this.swapItems}/>
+                    swapItemsCallback={this.swapItemTrxn}/>
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
