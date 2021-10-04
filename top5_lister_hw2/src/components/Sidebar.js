@@ -10,7 +10,6 @@ export default class Sidebar extends React.Component {
                 deleteListCallback, 
                 loadListCallback,
                 renameListCallback} = this.props;
-                console.log(keyNamePairs);
         return (
             <div id="top5-sidebar">
                 <div id="sidebar-heading">

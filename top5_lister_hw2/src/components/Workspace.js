@@ -5,9 +5,7 @@ export default class Workspace extends React.Component {
         // console.log("workspace curr list: ", this.props.currentList);
         // console.log("props: " + this.props);
         let currentList = this.props.currentList;
-        console.log(currentList);
         let items = currentList === null ? [] : currentList.items;
-        console.log(items);
         return (
             <div id="top5-workspace">
                 <div id="workspace-edit">

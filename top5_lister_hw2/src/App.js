@@ -25,7 +25,8 @@ class App extends React.Component {
         // SETUP THE INITIAL STATE
         this.state = {
             currentList : null,
-            sessionData : loadedSessionData
+            sessionData : loadedSessionData,
+            currentDelete: null
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -125,12 +126,29 @@ class App extends React.Component {
             // ANY AFTER EFFECTS?
         });
     }
-    deleteList = () => {
+    deleteList = (listToDelete) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
         this.showDeleteListModal();
+
+        this.setState(prevState => ({
+            currentDelete: listToDelete,
+            currentList: this.state.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: prevState.sessionData.keyNamePairs
+                
+            }
+        }), () => {
+            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
+            // THE TRANSACTION STACK IS CLEARED
+            // this.db.mutationUpdateList(this.state.currentList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+        console.log(this.state.sessionData.keyNamePairs)
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -145,7 +163,14 @@ class App extends React.Component {
     }
 
     removeList = () => {
-        console.log(this.state.currentList.name + " would've been removed!");
+        console.log(this.state.currentDelete.name + " would've been removed!");
+        for (let i = 0; i < this.state.sessionData.keyNamePairs.length; i++){
+            console.log(this.state.sessionData.keyNamePairs[i])
+            if (this.state.currentDelete === this.state.sessionData.keyNamePairs[i]){
+                console.log("delete " + this.state.sessionData.keyNamePairs[i].name)
+                break
+            }
+        }
         this.hideDeleteListModal();
     }
 
@@ -225,7 +250,7 @@ class App extends React.Component {
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
-                    listKeyPair={this.state.currentList}
+                    listKeyPair={this.state.currentDelete}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     removeListCallback={this.removeList}
                     // listToBeRemovedName={this.state.currentList.name}
