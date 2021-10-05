@@ -87,7 +87,7 @@ export default class ItemCard extends React.Component {
     
     handleUpdate = (event) => {
         this.setState({ text: event.target.value });
-        console.log(event.target.value)
+        console.log("handleupdate: " + event.target.value)
     }
     handleKeyPress = (event) => {
         if (event.code === "Enter") {
@@ -96,12 +96,12 @@ export default class ItemCard extends React.Component {
     }
     handleBlur = () => {
         if (this.state.text != this.props.itemName){
+            console.log(typeof this.state.text)
             console.log("entered")
             let index = this.props.index;
             let textValue = this.state.text;
             console.log(index)
             console.log(textValue)
-            console.log(this.state.value)
             this.props.createChangeTrxnCallback(index, textValue);
         } 
         this.handleToggleEdit();

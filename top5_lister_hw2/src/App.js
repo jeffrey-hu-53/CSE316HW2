@@ -79,6 +79,7 @@ class App extends React.Component {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
     renameList = (key, newName) => {
@@ -122,11 +123,11 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
-            this.tps.clearAllTransactions();
+            
             console.log(this.state.currentList)
             console.log("After loading new list, tps size is: "+ this.tps.getSize())
         });
-        
+        this.tps.clearAllTransactions();
         
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -138,9 +139,10 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
-            this.tps.clearAllTransactions();
+            // this.tps.clearAllTransactions();
             console.log("After closing the list, tps size is: "+ this.tps.getSize())
         });
+        this.tps.clearAllTransactions();
     }
     deleteList = (listToDelete) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
@@ -187,21 +189,38 @@ class App extends React.Component {
             }
         }
 
-        this.setState(prevState => ({
-            currentDelete: null,
-            currentList: this.state.currentList,
-            sessionData: {
-                nextKey: prevState.sessionData.nextKey,
-                counter: prevState.sessionData.counter,
-                keyNamePairs: this.state.sessionData.keyNamePairs
-                
-            }
-        }), () => {
-            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
-            // THE TRANSACTION STACK IS CLEARED
-            this.db.mutationUpdateList(this.state.currentList);
-            this.db.mutationUpdateSessionData(this.state.sessionData);
-        });
+        console.log(this.state.currentDelete.key)
+        console.log(this.state.currentList.key)
+        if (this.state.currentDelete.key != this.state.currentList.key){
+            this.setState(prevState => ({
+                currentDelete: null,
+                currentList: this.state.currentList,
+                sessionData: {
+                    nextKey: prevState.sessionData.nextKey,
+                    counter: prevState.sessionData.counter,
+                    keyNamePairs: this.state.sessionData.keyNamePairs
+                    
+                }
+            }), () => {
+                this.db.mutationUpdateList(this.state.currentList);
+                this.db.mutationUpdateSessionData(this.state.sessionData);
+            });
+        } else {
+            this.setState(prevState => ({
+                currentDelete: null,
+                currentList: null,
+                sessionData: {
+                    nextKey: prevState.sessionData.nextKey,
+                    counter: prevState.sessionData.counter,
+                    keyNamePairs: this.state.sessionData.keyNamePairs
+                    
+                }
+            }), () => {
+                // this.db.mutationUpdateList(this.state.currentList);
+                this.db.mutationUpdateSessionData(this.state.sessionData);
+            });
+        }
+        
 
         this.hideDeleteListModal();
     }
@@ -281,6 +300,30 @@ class App extends React.Component {
         }
     }
 
+    // undoActivate = () =>{
+    //     if (this.tps.hasTransactionToUndo()){
+    //         return true
+    //     } else {
+    //         return false
+    //     }
+    // }
+
+    // redoActivate = () =>{
+    //     if (this.tps.hasTransactionToRedo()){
+    //         return true
+    //     } else {
+    //         return false
+    //     }
+    // }
+
+    // closeActivate = () =>{
+    //     if (this.state.currentList != null){
+    //         return true
+    //     } else {
+    //         return false
+    //     }
+    // }
+
     render() {
         return (
             <div id="app-root">
@@ -288,7 +331,9 @@ class App extends React.Component {
                     title='Top 5 Lister'
                     closeCallback={this.closeCurrentList}
                     undoCallback={this.undoTransaction}
-                    redoCallback={this.redoTransaction} />
+                    redoCallback={this.redoTransaction} 
+                    tps={this.tps}
+                    currentList={this.state.currentList}/>
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
