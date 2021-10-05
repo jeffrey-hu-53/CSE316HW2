@@ -188,24 +188,7 @@ class App extends React.Component {
                 break
             }
         }
-
-        console.log(this.state.currentDelete.key)
-        console.log(this.state.currentList.key)
-        if (this.state.currentDelete.key != this.state.currentList.key){
-            this.setState(prevState => ({
-                currentDelete: null,
-                currentList: this.state.currentList,
-                sessionData: {
-                    nextKey: prevState.sessionData.nextKey,
-                    counter: prevState.sessionData.counter,
-                    keyNamePairs: this.state.sessionData.keyNamePairs
-                    
-                }
-            }), () => {
-                this.db.mutationUpdateList(this.state.currentList);
-                this.db.mutationUpdateSessionData(this.state.sessionData);
-            });
-        } else {
+        if (this.state.currentList == null){
             this.setState(prevState => ({
                 currentDelete: null,
                 currentList: null,
@@ -219,11 +202,42 @@ class App extends React.Component {
                 // this.db.mutationUpdateList(this.state.currentList);
                 this.db.mutationUpdateSessionData(this.state.sessionData);
             });
+            this.hideDeleteListModal();
+        } else {
+            if (this.state.currentDelete.key != this.state.currentList.key){
+                this.setState(prevState => ({
+                    currentDelete: null,
+                    currentList: this.state.currentList,
+                    sessionData: {
+                        nextKey: prevState.sessionData.nextKey,
+                        counter: prevState.sessionData.counter,
+                        keyNamePairs: this.state.sessionData.keyNamePairs
+                        
+                    }
+                }), () => {
+                    this.db.mutationUpdateList(this.state.currentList);
+                    this.db.mutationUpdateSessionData(this.state.sessionData);
+                });
+                this.hideDeleteListModal();
+            } else {
+                this.setState(prevState => ({
+                    currentDelete: null,
+                    currentList: null,
+                    sessionData: {
+                        nextKey: prevState.sessionData.nextKey,
+                        counter: prevState.sessionData.counter,
+                        keyNamePairs: this.state.sessionData.keyNamePairs
+                        
+                    }
+                }), () => {
+                    // this.db.mutationUpdateList(this.state.currentList);
+                    this.db.mutationUpdateSessionData(this.state.sessionData);
+                });
+                this.hideDeleteListModal();
+            }
         }
-        
-
-        this.hideDeleteListModal();
     }
+    
 
     createChangeItemTrxn = (index, newName) => {
         let oldName = this.state.currentList.items[index]
