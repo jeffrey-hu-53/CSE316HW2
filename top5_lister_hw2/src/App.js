@@ -238,6 +238,17 @@ class App extends React.Component {
         }
     }
     
+    componentDidMount(){
+        window.addEventListener("keydown", (event) => {
+            if (event.ctrlKey && event.keyCode === 90){
+                console.log("Undo Activated")
+                this.undoTransaction();
+            } else if (event.ctrlKey && event.keyCode === 89){
+                console.log("Redo Activated")
+                this.redoTransaction();
+            }
+        })
+    }
 
     createChangeItemTrxn = (index, newName) => {
         let oldName = this.state.currentList.items[index]
@@ -303,7 +314,16 @@ class App extends React.Component {
         } else {
             console.log("NOTHING TO UNDO");
         }
-        
+        this.setState(prevState => ({
+            currentList: this.state.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: prevState.sessionData.keyNamePairs
+            }
+        }), () => {
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
     }
 
     redoTransaction = () => {
@@ -312,6 +332,17 @@ class App extends React.Component {
         } else {
             console.log("NOTHING TO REDO");
         }
+
+        this.setState(prevState => ({
+            currentList: this.state.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: prevState.sessionData.keyNamePairs
+            }
+        }), () => {
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
     }
 
     // undoActivate = () =>{
